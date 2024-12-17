@@ -9,6 +9,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 class InformationPageModel extends FlutterFlowModel<InformationPageWidget> {
+  ///  Local state fields for this page.
+
+  String title = '帳戶餘額';
+
   ///  State fields for stateful widgets in this page.
 
   // State field(s) for Expandable widget.

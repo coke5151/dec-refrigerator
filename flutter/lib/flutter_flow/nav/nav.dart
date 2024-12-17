@@ -39,12 +39,32 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
       initialLocation: '/',
       debugLogDiagnostics: true,
       refreshListenable: appStateNotifier,
-      errorBuilder: (context, state) => LoginPageWidget(),
+      errorBuilder: (context, state) => appStateNotifier.showSplashImage
+          ? Builder(
+              builder: (context) => Container(
+                color: Colors.white,
+                child: Image.asset(
+                  'assets/images/logo.jpg',
+                  fit: BoxFit.contain,
+                ),
+              ),
+            )
+          : NavBarPage(),
       routes: [
         FFRoute(
           name: '_initialize',
           path: '/',
-          builder: (context, _) => LoginPageWidget(),
+          builder: (context, _) => appStateNotifier.showSplashImage
+              ? Builder(
+                  builder: (context) => Container(
+                    color: Colors.white,
+                    child: Image.asset(
+                      'assets/images/logo.jpg',
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                )
+              : NavBarPage(),
         ),
         FFRoute(
           name: 'AddlistPage',
@@ -83,7 +103,12 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
         FFRoute(
           name: 'registerPage',
           path: '/registerPage',
-          builder: (context, params) => RegisterPageWidget(),
+          builder: (context, params) => RegisterPageWidget(
+            temp: params.getParam(
+              'temp',
+              ParamType.String,
+            ),
+          ),
         ),
         FFRoute(
           name: 'useFoodTransactionCheck',
@@ -91,10 +116,6 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
           builder: (context, params) => UseFoodTransactionCheckWidget(
             useTime: params.getParam(
               'useTime',
-              ParamType.String,
-            ),
-            groupId: params.getParam(
-              'groupId',
               ParamType.String,
             ),
             fAddress: params.getParam(
@@ -105,20 +126,49 @@ GoRouter createRouter(AppStateNotifier appStateNotifier) => GoRouter(
               'foodPercentage',
               ParamType.double,
             ),
-            pAddress: params.getParam(
-              'pAddress',
-              ParamType.String,
-            ),
             notes: params.getParam(
               'notes',
               ParamType.String,
+            ),
+            buyerAddress: params.getParam(
+              'buyerAddress',
+              ParamType.String,
+            ),
+            foodname: params.getParam(
+              'foodname',
+              ParamType.String,
+            ),
+            usemoney: params.getParam(
+              'usemoney',
+              ParamType.double,
             ),
           ),
         ),
         FFRoute(
           name: 'TransferSignatureAuthentication',
           path: '/transferSignatureAuthentication',
-          builder: (context, params) => TransferSignatureAuthenticationWidget(),
+          builder: (context, params) => TransferSignatureAuthenticationWidget(
+            fromAddress: params.getParam(
+              'fromAddress',
+              ParamType.String,
+            ),
+            time: params.getParam(
+              'time',
+              ParamType.String,
+            ),
+            amount: params.getParam(
+              'amount',
+              ParamType.double,
+            ),
+            notes: params.getParam(
+              'notes',
+              ParamType.String,
+            ),
+            fromName: params.getParam(
+              'fromName',
+              ParamType.String,
+            ),
+          ),
         ),
         FFRoute(
           name: 'setPage',

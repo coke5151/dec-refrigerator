@@ -1,12 +1,19 @@
 # dec-refrigerator
-A decentralized refrigerator accounting app.
 
-# Geth
+Flutter 跨平台冰箱分帳系統
 
-```bash
-geth --datadir ./ --http --http.corsdomain "*" --http.port 8545 --http.api "eth,net,web3,personal,clique" --networkid 123456 --port 8000 --nodiscover --ipcdisable --authrpc.port 8551 --allow-insecure-unlock console
-```
+# 架構
 
-```bash
-geth --datadir ./ --http --http.corsdomain "*" --http.port 8546 --http.api "eth,net,web3,personal,clique" --networkid 123456 --port 8081 --nodiscover --ipcdisable --authrpc.port 8552 --allow-insecure-unlock console
-```
+- 前端：Flutter
+- 後端：FastAPI
+- 資料庫：將來可使用智能合約部屬上鏈
+
+# Environment
+
+- Python 3.12.4
+  - 套件管理：PDM
+  - 開發框架：FastAPI
+- Flutter（跨平台手機 App）
+  - 套件管理：Pub
+  - 開發框架：Flutter
+- Solidity（開發智能合約）

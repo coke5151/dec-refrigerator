@@ -13,12 +13,13 @@ const _kPrivateApiFunctionName = 'ffPrivateApiCall';
 
 class AccountTransCall {
   static Future<ApiCallResponse> call({
-    String? baseURL = 'http://decentralized7.ddns.net:64214',
+    String? baseURL = '',
     String? transferTime = '',
     String? fromAddress = '',
     String? toAddress = '',
-    int? amount,
+    double? amount,
     String? notes = '',
+    String? groupId = '',
   }) async {
     final ffApiRequestBody = '''
 {
@@ -26,11 +27,12 @@ class AccountTransCall {
   "from_address": "${escapeStringForJson(fromAddress)}",
   "to_address": "${escapeStringForJson(toAddress)}",
   "amount": ${amount},
+  "group_id": "${escapeStringForJson(groupId)}",
   "notes": "${escapeStringForJson(notes)}"
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'accountTrans',
-      apiUrl: '${baseURL}/account/transfer',
+      apiUrl: '${baseURL}/account/transfer/',
       callType: ApiCallType.POST,
       headers: {},
       params: {},
@@ -69,7 +71,7 @@ class FoodInsertsCall {
 }''';
     return ApiManager.instance.makeApiCall(
       callName: 'foodInserts',
-      apiUrl: '${baseURL}/food/insert',
+      apiUrl: '${baseURL}/food/insert/',
       callType: ApiCallType.POST,
       headers: {},
       params: {},
@@ -92,7 +94,7 @@ class FoodallCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'foodall',
-      apiUrl: '${baseURL}/food/all',
+      apiUrl: '${baseURL}/food/all/',
       callType: ApiCallType.GET,
       headers: {},
       params: {
@@ -115,18 +117,16 @@ class FooduseCall {
     String? groupId = '',
     String? faddress = '',
     double? amountPercentage,
-    List<String>? paddressList,
+    String? paddress = '',
     String? notes = '',
   }) async {
-    final paddress = _serializeList(paddressList);
-
     final ffApiRequestBody = '''
 {
   "use_time": "${escapeStringForJson(useTime)}",
   "use_food_group_id": "${escapeStringForJson(groupId)}",
   "use_food_address": "${escapeStringForJson(faddress)}",
   "use_food_amount_percentage": ${amountPercentage},
-  "participant_addresses": ${paddress},
+  "user_address": "${escapeStringForJson(paddress)}",
   "notes": "${escapeStringForJson(notes)}"
 }''';
     return ApiManager.instance.makeApiCall(
@@ -138,8 +138,8 @@ class FooduseCall {
       body: ffApiRequestBody,
       bodyType: BodyType.JSON,
       returnBody: true,
-      encodeBodyUtf8: false,
-      decodeUtf8: false,
+      encodeBodyUtf8: true,
+      decodeUtf8: true,
       cache: false,
       isStreamingApi: false,
       alwaysAllowBody: false,
@@ -154,7 +154,7 @@ class AccountallCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'accountall',
-      apiUrl: '${baseURL}/account/all',
+      apiUrl: '${baseURL}/account/all/',
       callType: ApiCallType.GET,
       headers: {},
       params: {
@@ -188,14 +188,16 @@ class AccountSingleCall {
   static Future<ApiCallResponse> call({
     String? baseURL = '',
     String? address = '',
+    String? groupId = '',
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'accountSingle',
-      apiUrl: '${baseURL}/account/single',
+      apiUrl: '${baseURL}/account/single/',
       callType: ApiCallType.GET,
       headers: {},
       params: {
         'address': address,
+        'group_id': groupId,
       },
       returnBody: true,
       encodeBodyUtf8: false,
@@ -214,7 +216,87 @@ class GetAccountTransCall {
   }) async {
     return ApiManager.instance.makeApiCall(
       callName: 'getAccountTrans',
-      apiUrl: '${baseURL}/account/transfer',
+      apiUrl: '${baseURL}/account/transfer/',
+      callType: ApiCallType.GET,
+      headers: {},
+      params: {
+        'group_id': groupId,
+      },
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: true,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+}
+
+class JoinApiCall {
+  static Future<ApiCallResponse> call({
+    String? baseURL = '',
+    String? name = '',
+    String? address = '',
+    String? joinId = '',
+  }) async {
+    final ffApiRequestBody = '''
+{
+  "name": "${escapeStringForJson(name)}",
+  "address": "${escapeStringForJson(address)}",
+  "group_id": "${escapeStringForJson(joinId)}"
+}''';
+    return ApiManager.instance.makeApiCall(
+      callName: 'joinApi',
+      apiUrl: '${baseURL}/account/join_group/',
+      callType: ApiCallType.POST,
+      headers: {},
+      params: {},
+      body: ffApiRequestBody,
+      bodyType: BodyType.JSON,
+      returnBody: true,
+      encodeBodyUtf8: true,
+      decodeUtf8: true,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+}
+
+class FoodSingleCall {
+  static Future<ApiCallResponse> call({
+    String? baseURL = '',
+    String? address = '',
+    String? groupId = '',
+    String? timestamp = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'foodSingle',
+      apiUrl: '${baseURL}/food/single/',
+      callType: ApiCallType.GET,
+      headers: {},
+      params: {
+        'address': address,
+        'group_id': groupId,
+      },
+      returnBody: true,
+      encodeBodyUtf8: false,
+      decodeUtf8: true,
+      cache: false,
+      isStreamingApi: false,
+      alwaysAllowBody: false,
+    );
+  }
+}
+
+class FoodpieCall {
+  static Future<ApiCallResponse> call({
+    String? baseURL = '',
+    String? groupId = '',
+  }) async {
+    return ApiManager.instance.makeApiCall(
+      callName: 'foodpie',
+      apiUrl: '${baseURL}/food/pie/',
       callType: ApiCallType.GET,
       headers: {},
       params: {

@@ -378,43 +378,8 @@ class _AddlistPageWidgetState extends State<AddlistPageWidget> {
                                                 await showDatePicker(
                                               context: context,
                                               initialDate: getCurrentTimestamp,
-                                              firstDate: getCurrentTimestamp,
+                                              firstDate: DateTime(1900),
                                               lastDate: DateTime(2050),
-                                              builder: (context, child) {
-                                                return wrapInMaterialDatePickerTheme(
-                                                  context,
-                                                  child!,
-                                                  headerBackgroundColor:
-                                                      Color(0xFF6F61EF),
-                                                  headerForegroundColor:
-                                                      Colors.white,
-                                                  headerTextStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .headlineLarge
-                                                          .override(
-                                                            fontFamily:
-                                                                'Outfit',
-                                                            color: Color(
-                                                                0xFF15161E),
-                                                            fontSize: 32.0,
-                                                            letterSpacing: 0.0,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                  pickerBackgroundColor:
-                                                      Colors.white,
-                                                  pickerForegroundColor:
-                                                      Color(0xFF15161E),
-                                                  selectedDateTimeBackgroundColor:
-                                                      Color(0xFF6F61EF),
-                                                  selectedDateTimeForegroundColor:
-                                                      Colors.white,
-                                                  actionButtonForegroundColor:
-                                                      Color(0xFF15161E),
-                                                  iconSize: 24.0,
-                                                );
-                                              },
                                             );
 
                                             if (_datePicked1Date != null) {
@@ -450,7 +415,7 @@ class _AddlistPageWidgetState extends State<AddlistPageWidget> {
                                                         12.0, 0.0, 0.0, 0.0),
                                                 child: Text(
                                                   valueOrDefault<String>(
-                                                    dateTimeFormat("yMd",
+                                                    dateTimeFormat("y/M/d",
                                                         _model.datePicked1),
                                                     '請選擇日期',
                                                   ),
@@ -503,55 +468,8 @@ class _AddlistPageWidgetState extends State<AddlistPageWidget> {
                                                 await showDatePicker(
                                               context: context,
                                               initialDate: getCurrentTimestamp,
-                                              firstDate: getCurrentTimestamp,
+                                              firstDate: DateTime(1900),
                                               lastDate: DateTime(2050),
-                                              builder: (context, child) {
-                                                return wrapInMaterialDatePickerTheme(
-                                                  context,
-                                                  child!,
-                                                  headerBackgroundColor:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .primary,
-                                                  headerForegroundColor:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .info,
-                                                  headerTextStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .headlineLarge
-                                                          .override(
-                                                            fontFamily:
-                                                                'Inter Tight',
-                                                            fontSize: 32.0,
-                                                            letterSpacing: 0.0,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                  pickerBackgroundColor:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .secondaryBackground,
-                                                  pickerForegroundColor:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .primaryText,
-                                                  selectedDateTimeBackgroundColor:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .primary,
-                                                  selectedDateTimeForegroundColor:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .info,
-                                                  actionButtonForegroundColor:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .primaryText,
-                                                  iconSize: 24.0,
-                                                );
-                                              },
                                             );
 
                                             if (_datePicked2Date != null) {
@@ -587,7 +505,7 @@ class _AddlistPageWidgetState extends State<AddlistPageWidget> {
                                                         12.0, 0.0, 0.0, 0.0),
                                                 child: Text(
                                                   valueOrDefault<String>(
-                                                    dateTimeFormat("yMd",
+                                                    dateTimeFormat("y/M/d",
                                                         _model.datePicked2),
                                                     '請選擇日期',
                                                   ),
@@ -670,7 +588,7 @@ class _AddlistPageWidgetState extends State<AddlistPageWidget> {
                                                   (getJsonField(
                                                 dropDownAccountallResponse
                                                     .jsonBody,
-                                                r'''$.account[:].address''',
+                                                r'''$.data[:].address''',
                                                 true,
                                               ) as List)
                                                       .map<String>(
@@ -679,7 +597,7 @@ class _AddlistPageWidgetState extends State<AddlistPageWidget> {
                                               optionLabels: (getJsonField(
                                                 dropDownAccountallResponse
                                                     .jsonBody,
-                                                r'''$.account[:].name''',
+                                                r'''$.data[:].name''',
                                                 true,
                                               ) as List)
                                                   .map<String>(
@@ -855,6 +773,21 @@ class _AddlistPageWidgetState extends State<AddlistPageWidget> {
                         var _shouldSetState = false;
                         if (!(_model.ingrediantTextController1.text != null &&
                             _model.ingrediantTextController1.text != '')) {
+                          await showDialog(
+                            context: context,
+                            builder: (alertDialogContext) {
+                              return AlertDialog(
+                                content: Text('尚未填寫完成'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(alertDialogContext),
+                                    child: Text('Ok'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                           if (_shouldSetState) safeSetState(() {});
                           return;
                         }
@@ -868,18 +801,78 @@ class _AddlistPageWidgetState extends State<AddlistPageWidget> {
                                       null &&
                                   _model.ingrediantTextController2.text !=
                                       '')) {
+                                await showDialog(
+                                  context: context,
+                                  builder: (alertDialogContext) {
+                                    return AlertDialog(
+                                      content: Text('尚未填寫完成'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(alertDialogContext),
+                                          child: Text('Ok'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
                                 if (_shouldSetState) safeSetState(() {});
                                 return;
                               }
                             } else {
+                              await showDialog(
+                                context: context,
+                                builder: (alertDialogContext) {
+                                  return AlertDialog(
+                                    content: Text('尚未填寫完成'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(alertDialogContext),
+                                        child: Text('Ok'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
                               if (_shouldSetState) safeSetState(() {});
                               return;
                             }
                           } else {
+                            await showDialog(
+                              context: context,
+                              builder: (alertDialogContext) {
+                                return AlertDialog(
+                                  content: Text('尚未填寫完成'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(alertDialogContext),
+                                      child: Text('Ok'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
                             if (_shouldSetState) safeSetState(() {});
                             return;
                           }
                         } else {
+                          await showDialog(
+                            context: context,
+                            builder: (alertDialogContext) {
+                              return AlertDialog(
+                                content: Text('尚未填寫完成'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(alertDialogContext),
+                                    child: Text('Ok'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                           if (_shouldSetState) safeSetState(() {});
                           return;
                         }
@@ -930,6 +923,8 @@ class _AddlistPageWidgetState extends State<AddlistPageWidget> {
                               );
                             },
                           );
+                          if (_shouldSetState) safeSetState(() {});
+                          return;
                         }
 
                         context.safePop();
