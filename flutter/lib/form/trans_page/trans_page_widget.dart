@@ -7,6 +7,7 @@ import '/flutter_flow/flutter_flow_widgets.dart';
 import '/flutter_flow/form_field_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'trans_page_model.dart';
@@ -160,102 +161,16 @@ class _TransPageWidgetState extends State<TransPageWidget> {
                                                 await showDatePicker(
                                               context: context,
                                               initialDate: getCurrentTimestamp,
-                                              firstDate: getCurrentTimestamp,
+                                              firstDate: DateTime(1900),
                                               lastDate: DateTime(2050),
-                                              builder: (context, child) {
-                                                return wrapInMaterialDatePickerTheme(
-                                                  context,
-                                                  child!,
-                                                  headerBackgroundColor:
-                                                      Color(0xFF6F61EF),
-                                                  headerForegroundColor:
-                                                      Colors.white,
-                                                  headerTextStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .headlineLarge
-                                                          .override(
-                                                            fontFamily:
-                                                                'Outfit',
-                                                            color: Color(
-                                                                0xFF15161E),
-                                                            fontSize: 32.0,
-                                                            letterSpacing: 0.0,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                  pickerBackgroundColor:
-                                                      Colors.white,
-                                                  pickerForegroundColor:
-                                                      Color(0xFF15161E),
-                                                  selectedDateTimeBackgroundColor:
-                                                      Color(0xFF6F61EF),
-                                                  selectedDateTimeForegroundColor:
-                                                      Colors.white,
-                                                  actionButtonForegroundColor:
-                                                      Color(0xFF15161E),
-                                                  iconSize: 24.0,
-                                                );
-                                              },
                                             );
 
-                                            TimeOfDay? _datePickedTime;
                                             if (_datePickedDate != null) {
-                                              _datePickedTime =
-                                                  await showTimePicker(
-                                                context: context,
-                                                initialTime:
-                                                    TimeOfDay.fromDateTime(
-                                                        getCurrentTimestamp),
-                                                builder: (context, child) {
-                                                  return wrapInMaterialTimePickerTheme(
-                                                    context,
-                                                    child!,
-                                                    headerBackgroundColor:
-                                                        Color(0xFF6F61EF),
-                                                    headerForegroundColor:
-                                                        Colors.white,
-                                                    headerTextStyle:
-                                                        FlutterFlowTheme.of(
-                                                                context)
-                                                            .headlineLarge
-                                                            .override(
-                                                              fontFamily:
-                                                                  'Outfit',
-                                                              color: Color(
-                                                                  0xFF15161E),
-                                                              fontSize: 32.0,
-                                                              letterSpacing:
-                                                                  0.0,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                            ),
-                                                    pickerBackgroundColor:
-                                                        Colors.white,
-                                                    pickerForegroundColor:
-                                                        Color(0xFF15161E),
-                                                    selectedDateTimeBackgroundColor:
-                                                        Color(0xFF6F61EF),
-                                                    selectedDateTimeForegroundColor:
-                                                        Colors.white,
-                                                    actionButtonForegroundColor:
-                                                        Color(0xFF15161E),
-                                                    iconSize: 24.0,
-                                                  );
-                                                },
-                                              );
-                                            }
-
-                                            if (_datePickedDate != null &&
-                                                _datePickedTime != null) {
                                               safeSetState(() {
                                                 _model.datePicked = DateTime(
                                                   _datePickedDate.year,
                                                   _datePickedDate.month,
                                                   _datePickedDate.day,
-                                                  _datePickedTime!.hour,
-                                                  _datePickedTime.minute,
                                                 );
                                               });
                                             }
@@ -283,7 +198,7 @@ class _TransPageWidgetState extends State<TransPageWidget> {
                                                         12.0, 0.0, 0.0, 0.0),
                                                 child: Text(
                                                   valueOrDefault<String>(
-                                                    dateTimeFormat("yMd",
+                                                    dateTimeFormat("y/M/d",
                                                         _model.datePicked),
                                                     '請選擇日期',
                                                   ),
@@ -313,7 +228,7 @@ class _TransPageWidgetState extends State<TransPageWidget> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'To',
+                                          'From',
                                           style: FlutterFlowTheme.of(context)
                                               .labelMedium
                                               .override(
@@ -369,7 +284,7 @@ class _TransPageWidgetState extends State<TransPageWidget> {
                                                   (getJsonField(
                                                 dropDownAccountallResponse
                                                     .jsonBody,
-                                                r'''$.account[:].address''',
+                                                r'''$.data[:].address''',
                                                 true,
                                               ) as List)
                                                       .map<String>(
@@ -378,7 +293,7 @@ class _TransPageWidgetState extends State<TransPageWidget> {
                                               optionLabels: (getJsonField(
                                                 dropDownAccountallResponse
                                                     .jsonBody,
-                                                r'''$.account[:].name''',
+                                                r'''$.data[:].name''',
                                                 true,
                                               ) as List)
                                                   .map<String>(
@@ -531,6 +446,10 @@ class _TransPageWidgetState extends State<TransPageWidget> {
                                             validator: _model
                                                 .textController1Validator
                                                 .asValidator(context),
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.allow(
+                                                  RegExp('^\\d*\\.?\\d*\$'))
+                                            ],
                                           ),
                                         ),
                                       ],
@@ -662,54 +581,70 @@ class _TransPageWidgetState extends State<TransPageWidget> {
                         EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 12.0),
                     child: FFButtonWidget(
                       onPressed: () async {
-                        _model.apiResults1t = await AccountTransCall.call(
+                        var _shouldSetState = false;
+                        if (!((_model.datePicked != null) &&
+                            (_model.dropDownValue != null &&
+                                _model.dropDownValue != '') &&
+                            (_model.textController1.text != null &&
+                                _model.textController1.text != ''))) {
+                          await showDialog(
+                            context: context,
+                            builder: (alertDialogContext) {
+                              return AlertDialog(
+                                content: Text('尚未填寫完成'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(alertDialogContext),
+                                    child: Text('Ok'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                          if (_shouldSetState) safeSetState(() {});
+                          return;
+                        }
+                        _model.fromName = await AccountSingleCall.call(
                           baseURL: FFAppState().baseURL,
-                          fromAddress: FFAppState().myaddress,
-                          toAddress: _model.dropDownValue,
-                          amount: int.tryParse(_model.textController1.text),
-                          notes: _model.descriptionTextController.text,
-                          transferTime: _model
-                              .datePicked?.microsecondsSinceEpoch
-                              ?.toString(),
+                          address: _model.dropDownValue,
+                          groupId: FFAppState().groupid,
                         );
 
-                        if ((_model.apiResults1t?.succeeded ?? true)) {
-                          await showDialog(
-                            context: context,
-                            builder: (alertDialogContext) {
-                              return AlertDialog(
-                                content: Text('已傳送'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(alertDialogContext),
-                                    child: Text('Ok'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        } else {
-                          await showDialog(
-                            context: context,
-                            builder: (alertDialogContext) {
-                              return AlertDialog(
-                                content: Text('失敗'),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(alertDialogContext),
-                                    child: Text('Ok'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                        _shouldSetState = true;
+                        if (Navigator.of(context).canPop()) {
+                          context.pop();
                         }
+                        context.pushNamed(
+                          'TransferSignatureAuthentication',
+                          queryParameters: {
+                            'fromAddress': serializeParam(
+                              _model.dropDownValue,
+                              ParamType.String,
+                            ),
+                            'time': serializeParam(
+                              dateTimeFormat("y/M/d", _model.datePicked),
+                              ParamType.String,
+                            ),
+                            'amount': serializeParam(
+                              double.tryParse(_model.textController1.text),
+                              ParamType.double,
+                            ),
+                            'notes': serializeParam(
+                              _model.descriptionTextController.text,
+                              ParamType.String,
+                            ),
+                            'fromName': serializeParam(
+                              getJsonField(
+                                (_model.fromName?.jsonBody ?? ''),
+                                r'''$.data.name''',
+                              ).toString(),
+                              ParamType.String,
+                            ),
+                          }.withoutNulls,
+                        );
 
-                        context.safePop();
-
-                        safeSetState(() {});
+                        if (_shouldSetState) safeSetState(() {});
                       },
                       text: '下一步',
                       options: FFButtonOptions(

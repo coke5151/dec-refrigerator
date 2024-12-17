@@ -1,7 +1,10 @@
+import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/flutter_flow/custom_functions.dart' as functions;
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -27,13 +30,15 @@ class _SetPageWidgetState extends State<SetPageWidget> {
     super.initState();
     _model = createModel(context, () => SetPageModel());
 
-    _model.textController1 ??= TextEditingController();
+    _model.textController1 ??= TextEditingController(text: FFAppState().myName);
     _model.textFieldFocusNode1 ??= FocusNode();
 
-    _model.textController2 ??= TextEditingController();
+    _model.textController2 ??=
+        TextEditingController(text: FFAppState().groupid);
     _model.textFieldFocusNode2 ??= FocusNode();
 
-    _model.textController3 ??= TextEditingController();
+    _model.textController3 ??=
+        TextEditingController(text: FFAppState().baseURL);
     _model.textFieldFocusNode3 ??= FocusNode();
   }
 
@@ -46,6 +51,8 @@ class _SetPageWidgetState extends State<SetPageWidget> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -329,6 +336,23 @@ class _SetPageWidgetState extends State<SetPageWidget> {
                                         TextFormField(
                                           controller: _model.textController3,
                                           focusNode: _model.textFieldFocusNode3,
+                                          onChanged: (_) =>
+                                              EasyDebounce.debounce(
+                                            '_model.textController3',
+                                            Duration(milliseconds: 2000),
+                                            () async {
+                                              if (functions.detectLastWord(
+                                                      _model.textController3
+                                                          .text) ==
+                                                  true) {
+                                                _model.enable = true;
+                                                safeSetState(() {});
+                                              } else {
+                                                _model.enable = false;
+                                                safeSetState(() {});
+                                              }
+                                            },
+                                          ),
                                           autofocus: false,
                                           obscureText: false,
                                           decoration: InputDecoration(
@@ -437,15 +461,45 @@ class _SetPageWidgetState extends State<SetPageWidget> {
                                 ),
                               ),
                               FFButtonWidget(
-                                onPressed: () async {
-                                  FFAppState().baseURL =
-                                      _model.textController3.text;
-                                  FFAppState().groupid =
-                                      _model.textController2.text;
-                                  FFAppState().myName =
-                                      _model.textController1.text;
-                                  context.safePop();
-                                },
+                                onPressed: _model.enable
+                                    ? null
+                                    : () async {
+                                        if (functions.detectLastWord(
+                                                _model.textController3.text) ==
+                                            true) {
+                                          await showDialog(
+                                            context: context,
+                                            builder: (alertDialogContext) {
+                                              return AlertDialog(
+                                                content: Text('IP請勿以 \"/\" 結尾'),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () =>
+                                                        Navigator.pop(
+                                                            alertDialogContext),
+                                                    child: Text('Ok'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                          return;
+                                        }
+                                        FFAppState().baseURL =
+                                            _model.textController3.text;
+                                        FFAppState().groupid =
+                                            _model.textController2.text;
+                                        FFAppState().myName =
+                                            _model.textController1.text;
+                                        await JoinApiCall.call(
+                                          baseURL: FFAppState().baseURL,
+                                          name: FFAppState().myName,
+                                          address: FFAppState().myaddress,
+                                          joinId: FFAppState().groupid,
+                                        );
+
+                                        context.safePop();
+                                      },
                                 text: '修改帳戶資料',
                                 options: FFButtonOptions(
                                   width: 200.0,
@@ -464,6 +518,8 @@ class _SetPageWidgetState extends State<SetPageWidget> {
                                       ),
                                   elevation: 0.0,
                                   borderRadius: BorderRadius.circular(24.0),
+                                  disabledColor:
+                                      FlutterFlowTheme.of(context).error,
                                 ),
                               ),
                             ].divide(SizedBox(height: 24.0)),

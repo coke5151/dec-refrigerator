@@ -1,7 +1,9 @@
+import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -14,19 +16,21 @@ class UseFoodTransactionCheckWidget extends StatefulWidget {
   const UseFoodTransactionCheckWidget({
     super.key,
     required this.useTime,
-    required this.groupId,
     required this.fAddress,
     required this.foodPercentage,
-    required this.pAddress,
     required this.notes,
+    required this.buyerAddress,
+    required this.foodname,
+    required this.usemoney,
   });
 
   final String? useTime;
-  final String? groupId;
   final String? fAddress;
   final double? foodPercentage;
-  final String? pAddress;
   final String? notes;
+  final String? buyerAddress;
+  final String? foodname;
+  final double? usemoney;
 
   @override
   State<UseFoodTransactionCheckWidget> createState() =>
@@ -54,6 +58,8 @@ class _UseFoodTransactionCheckWidgetState
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -161,17 +167,60 @@ class _UseFoodTransactionCheckWidgetState
                                                   letterSpacing: 0.0,
                                                 ),
                                           ),
-                                          Text(
-                                            '人名',
-                                            style: FlutterFlowTheme.of(context)
-                                                .titleMedium
-                                                .override(
-                                                  fontFamily: 'Inter Tight',
-                                                  letterSpacing: 0.0,
+                                          FutureBuilder<ApiCallResponse>(
+                                            future: AccountSingleCall.call(
+                                              baseURL: FFAppState().baseURL,
+                                              address: widget!.buyerAddress,
+                                              groupId: FFAppState().groupid,
+                                            ),
+                                            builder: (context, snapshot) {
+                                              // Customize what your widget looks like when it's loading.
+                                              if (!snapshot.hasData) {
+                                                return Center(
+                                                  child: SizedBox(
+                                                    width: 50.0,
+                                                    height: 50.0,
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      valueColor:
+                                                          AlwaysStoppedAnimation<
+                                                              Color>(
+                                                        FlutterFlowTheme.of(
+                                                                context)
+                                                            .primary,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                              final textAccountSingleResponse =
+                                                  snapshot.data!;
+
+                                              return Text(
+                                                valueOrDefault<String>(
+                                                  getJsonField(
+                                                    textAccountSingleResponse
+                                                        .jsonBody,
+                                                    r'''$.data.name''',
+                                                  )?.toString(),
+                                                  'unknown',
                                                 ),
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleMedium
+                                                        .override(
+                                                          fontFamily:
+                                                              'Inter Tight',
+                                                          letterSpacing: 0.0,
+                                                        ),
+                                              );
+                                            },
                                           ),
                                           Text(
-                                            '錢包地址',
+                                            valueOrDefault<String>(
+                                              widget!.buyerAddress,
+                                              'unknown',
+                                            ),
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
@@ -218,7 +267,10 @@ class _UseFoodTransactionCheckWidgetState
                                                 ),
                                           ),
                                           Text(
-                                            '人名',
+                                            valueOrDefault<String>(
+                                              FFAppState().myName,
+                                              'unknown',
+                                            ),
                                             style: FlutterFlowTheme.of(context)
                                                 .titleMedium
                                                 .override(
@@ -227,7 +279,10 @@ class _UseFoodTransactionCheckWidgetState
                                                 ),
                                           ),
                                           Text(
-                                            '錢包地址',
+                                            valueOrDefault<String>(
+                                              FFAppState().myaddress,
+                                              'unknown',
+                                            ),
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
@@ -274,7 +329,10 @@ class _UseFoodTransactionCheckWidgetState
                                                 ),
                                           ),
                                           Text(
-                                            '名稱',
+                                            valueOrDefault<String>(
+                                              widget!.foodname,
+                                              'unknown',
+                                            ),
                                             style: FlutterFlowTheme.of(context)
                                                 .titleMedium
                                                 .override(
@@ -283,7 +341,10 @@ class _UseFoodTransactionCheckWidgetState
                                                 ),
                                           ),
                                           Text(
-                                            '食材地址',
+                                            valueOrDefault<String>(
+                                              widget!.fAddress,
+                                              'unknown',
+                                            ),
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
@@ -330,7 +391,12 @@ class _UseFoodTransactionCheckWidgetState
                                                 ),
                                           ),
                                           Text(
-                                            'XX%',
+                                            formatNumber(
+                                              functions.divider(
+                                                  widget!.foodPercentage!,
+                                                  100.0),
+                                              formatType: FormatType.percent,
+                                            ),
                                             style: FlutterFlowTheme.of(context)
                                                 .titleMedium
                                                 .override(
@@ -338,14 +404,31 @@ class _UseFoodTransactionCheckWidgetState
                                                   letterSpacing: 0.0,
                                                 ),
                                           ),
-                                          Text(
-                                            '\$XXX',
-                                            style: FlutterFlowTheme.of(context)
-                                                .titleMedium
-                                                .override(
-                                                  fontFamily: 'Inter Tight',
-                                                  letterSpacing: 0.0,
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              Icon(
+                                                Icons.attach_money_outlined,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
+                                                size: 24.0,
+                                              ),
+                                              Text(
+                                                valueOrDefault<String>(
+                                                  widget!.usemoney.toString(),
+                                                  'unknown',
                                                 ),
+                                                style:
+                                                    FlutterFlowTheme.of(context)
+                                                        .titleMedium
+                                                        .override(
+                                                          fontFamily:
+                                                              'Inter Tight',
+                                                          letterSpacing: 0.0,
+                                                        ),
+                                              ),
+                                            ],
                                           ),
                                         ].divide(SizedBox(height: 16.0)),
                                       ),
@@ -388,8 +471,59 @@ class _UseFoodTransactionCheckWidgetState
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       16.0, 12.0, 16.0, 12.0),
                                   child: FFButtonWidget(
-                                    onPressed: () {
-                                      print('Button pressed ...');
+                                    onPressed: () async {
+                                      _model.apiResultty5 =
+                                          await FooduseCall.call(
+                                        baseURL: FFAppState().baseURL,
+                                        useTime: widget!.useTime,
+                                        groupId: FFAppState().groupid,
+                                        faddress: widget!.fAddress,
+                                        amountPercentage:
+                                            widget!.foodPercentage,
+                                        paddress: FFAppState().myaddress,
+                                        notes: widget!.notes,
+                                      );
+
+                                      if ((_model.apiResultty5?.succeeded ??
+                                          true)) {
+                                        await showDialog(
+                                          context: context,
+                                          builder: (alertDialogContext) {
+                                            return AlertDialog(
+                                              content: Text('成功新增 !'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          alertDialogContext),
+                                                  child: Text('Ok'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      } else {
+                                        await showDialog(
+                                          context: context,
+                                          builder: (alertDialogContext) {
+                                            return AlertDialog(
+                                              content: Text('送出失敗!'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          alertDialogContext),
+                                                  child: Text('Ok'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      }
+
+                                      context.safePop();
+
+                                      safeSetState(() {});
                                     },
                                     text: '新增使用食材紀錄',
                                     options: FFButtonOptions(

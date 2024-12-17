@@ -1,4 +1,4 @@
-package com.mycompany.refrigeratormanager
+package com.decentralized.refrigeratormanager
 
 import io.flutter.embedding.android.FlutterActivity
 

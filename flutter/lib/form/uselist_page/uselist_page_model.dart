@@ -16,19 +16,23 @@ import 'package:provider/provider.dart';
 class UselistPageModel extends FlutterFlowModel<UselistPageWidget> {
   ///  Local state fields for this page.
 
-  dynamic selectlist;
+  double foodCost = 0.0;
 
-  double? amount;
+  double foodPercentage = 0.0;
 
-  double leftAmount = 0.0;
+  String? foodName = '';
+
+  String? foodBuyerAddress = '';
 
   ///  State fields for stateful widgets in this page.
 
   final formKey = GlobalKey<FormState>();
   DateTime? datePicked;
   // State field(s) for DropDown widget.
-  double? dropDownValue;
-  FormFieldController<double>? dropDownValueController;
+  String? dropDownValue;
+  FormFieldController<String>? dropDownValueController;
+  // Stores action output result for [Backend Call - API (foodSingle)] action in DropDown widget.
+  ApiCallResponse? apiResultaas;
   // State field(s) for TextField widget.
   FocusNode? textFieldFocusNode;
   TextEditingController? textController1;

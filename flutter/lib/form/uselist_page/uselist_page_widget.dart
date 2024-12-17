@@ -91,7 +91,7 @@ class _UselistPageWidgetState extends State<UselistPageWidget> {
                     size: 24.0,
                   ),
                   onPressed: () async {
-                    context.pushNamed('mainpage');
+                    context.safePop();
                   },
                 ),
               ),
@@ -159,43 +159,8 @@ class _UselistPageWidgetState extends State<UselistPageWidget> {
                                                 await showDatePicker(
                                               context: context,
                                               initialDate: getCurrentTimestamp,
-                                              firstDate: getCurrentTimestamp,
+                                              firstDate: DateTime(1900),
                                               lastDate: DateTime(2050),
-                                              builder: (context, child) {
-                                                return wrapInMaterialDatePickerTheme(
-                                                  context,
-                                                  child!,
-                                                  headerBackgroundColor:
-                                                      Color(0xFF6F61EF),
-                                                  headerForegroundColor:
-                                                      Colors.white,
-                                                  headerTextStyle:
-                                                      FlutterFlowTheme.of(
-                                                              context)
-                                                          .headlineLarge
-                                                          .override(
-                                                            fontFamily:
-                                                                'Outfit',
-                                                            color: Color(
-                                                                0xFF15161E),
-                                                            fontSize: 32.0,
-                                                            letterSpacing: 0.0,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                          ),
-                                                  pickerBackgroundColor:
-                                                      Colors.white,
-                                                  pickerForegroundColor:
-                                                      Color(0xFF15161E),
-                                                  selectedDateTimeBackgroundColor:
-                                                      Color(0xFF6F61EF),
-                                                  selectedDateTimeForegroundColor:
-                                                      Colors.white,
-                                                  actionButtonForegroundColor:
-                                                      Color(0xFF15161E),
-                                                  iconSize: 24.0,
-                                                );
-                                              },
                                             );
 
                                             if (_datePickedDate != null) {
@@ -231,8 +196,8 @@ class _UselistPageWidgetState extends State<UselistPageWidget> {
                                                         12.0, 0.0, 0.0, 0.0),
                                                 child: Text(
                                                   valueOrDefault<String>(
-                                                    _model.datePicked
-                                                        ?.toString(),
+                                                    dateTimeFormat("y/M/d",
+                                                        _model.datePicked),
                                                     '請選擇日期',
                                                   ),
                                                   style: FlutterFlowTheme.of(
@@ -299,30 +264,81 @@ class _UselistPageWidgetState extends State<UselistPageWidget> {
                                             final dropDownFoodallResponse =
                                                 snapshot.data!;
 
-                                            return FlutterFlowDropDown<double>(
+                                            return FlutterFlowDropDown<String>(
                                               controller: _model
                                                       .dropDownValueController ??=
-                                                  FormFieldController<double>(
+                                                  FormFieldController<String>(
                                                       null),
-                                              options: List<double>.from(
-                                                  getJsonField(
+                                              options: List<String>.from(
+                                                  (getJsonField(
                                                 dropDownFoodallResponse
                                                     .jsonBody,
-                                                r'''$.food[:].money_cost''',
+                                                r'''$[:].food_address''',
                                                 true,
-                                              )!),
+                                              ) as List)
+                                                      .map<String>(
+                                                          (s) => s.toString())
+                                                      .toList()!),
                                               optionLabels: (getJsonField(
                                                 dropDownFoodallResponse
                                                     .jsonBody,
-                                                r'''$.food[:].name''',
+                                                r'''$[:].name''',
                                                 true,
                                               ) as List)
                                                   .map<String>(
                                                       (s) => s.toString())
                                                   .toList()!,
-                                              onChanged: (val) => safeSetState(
-                                                  () => _model.dropDownValue =
-                                                      val),
+                                              onChanged: (val) async {
+                                                safeSetState(() =>
+                                                    _model.dropDownValue = val);
+                                                _model.apiResultaas =
+                                                    await FoodSingleCall.call(
+                                                  baseURL: FFAppState().baseURL,
+                                                  address: _model.dropDownValue,
+                                                  groupId: FFAppState().groupid,
+                                                  timestamp: getCurrentTimestamp
+                                                      .microsecondsSinceEpoch
+                                                      .toString(),
+                                                );
+
+                                                if ((_model.apiResultaas
+                                                        ?.succeeded ??
+                                                    true)) {
+                                                  _model.foodCost =
+                                                      getJsonField(
+                                                    (_model.apiResultaas
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.money_cost''',
+                                                  );
+                                                  _model.foodPercentage =
+                                                      getJsonField(
+                                                    (_model.apiResultaas
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.quantity_left_percentage''',
+                                                  );
+                                                  _model.foodName =
+                                                      getJsonField(
+                                                    (_model.apiResultaas
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.name''',
+                                                  ).toString();
+                                                  _model.foodBuyerAddress =
+                                                      getJsonField(
+                                                    (_model.apiResultaas
+                                                            ?.jsonBody ??
+                                                        ''),
+                                                    r'''$.buyer_address''',
+                                                  ).toString();
+                                                  safeSetState(() {});
+                                                } else {
+                                                  context.safePop();
+                                                }
+
+                                                safeSetState(() {});
+                                              },
                                               width: 200.0,
                                               height: 40.0,
                                               textStyle:
@@ -387,7 +403,11 @@ class _UselistPageWidgetState extends State<UselistPageWidget> {
                                           decoration: BoxDecoration(),
                                         ),
                                         LinearPercentIndicator(
-                                          percent: 0.5,
+                                          percent: valueOrDefault<double>(
+                                            functions.divider(
+                                                _model.foodPercentage, 100.0),
+                                            0.0,
+                                          ),
                                           width: 200.0,
                                           lineHeight: 20.0,
                                           animation: true,
@@ -397,7 +417,11 @@ class _UselistPageWidgetState extends State<UselistPageWidget> {
                                               FlutterFlowTheme.of(context)
                                                   .secondaryBackground,
                                           center: Text(
-                                            '50%',
+                                            formatNumber(
+                                              functions.divider(
+                                                  _model.foodPercentage, 100.0),
+                                              formatType: FormatType.percent,
+                                            ),
                                             textAlign: TextAlign.center,
                                             style: FlutterFlowTheme.of(context)
                                                 .titleSmall
@@ -570,29 +594,50 @@ class _UselistPageWidgetState extends State<UselistPageWidget> {
                                               width: 2.0,
                                             ),
                                           ),
-                                          child: Align(
-                                            alignment:
-                                                AlignmentDirectional(-1.0, 0.0),
-                                            child: Padding(
-                                              padding: EdgeInsetsDirectional
-                                                  .fromSTEB(
-                                                      12.0, 0.0, 0.0, 0.0),
-                                              child: Text(
-                                                functions
-                                                    .shareprice(
-                                                        _model.dropDownValue,
-                                                        double.tryParse(_model
-                                                            .textController1
-                                                            .text))
-                                                    .toString(),
-                                                style:
-                                                    FlutterFlowTheme.of(context)
+                                          child: Padding(
+                                            padding:
+                                                EdgeInsetsDirectional.fromSTEB(
+                                                    12.0, 0.0, 0.0, 0.0),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.max,
+                                              children: [
+                                                Icon(
+                                                  Icons.attach_money_outlined,
+                                                  color: FlutterFlowTheme.of(
+                                                          context)
+                                                      .primaryText,
+                                                  size: 24.0,
+                                                ),
+                                                Align(
+                                                  alignment:
+                                                      AlignmentDirectional(
+                                                          -1.0, 0.0),
+                                                  child: Text(
+                                                    functions
+                                                        .shareprice(
+                                                            valueOrDefault<
+                                                                double>(
+                                                              _model.foodCost,
+                                                              0.0,
+                                                            ),
+                                                            valueOrDefault<
+                                                                double>(
+                                                              double.tryParse(_model
+                                                                  .textController1
+                                                                  .text),
+                                                              0.0,
+                                                            ))
+                                                        .toString(),
+                                                    style: FlutterFlowTheme.of(
+                                                            context)
                                                         .bodyMedium
                                                         .override(
                                                           fontFamily: 'Inter',
                                                           letterSpacing: 0.0,
                                                         ),
-                                              ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ),
@@ -712,8 +757,66 @@ class _UselistPageWidgetState extends State<UselistPageWidget> {
                     padding:
                         EdgeInsetsDirectional.fromSTEB(16.0, 12.0, 16.0, 12.0),
                     child: FFButtonWidget(
-                      onPressed: () {
-                        print('Button pressed ...');
+                      onPressed: () async {
+                        if (!((_model.datePicked != null) &&
+                            (_model.dropDownValue != null &&
+                                _model.dropDownValue != '') &&
+                            (_model.textController1.text != null &&
+                                _model.textController1.text != ''))) {
+                          await showDialog(
+                            context: context,
+                            builder: (alertDialogContext) {
+                              return AlertDialog(
+                                content: Text('尚未填寫完成'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(alertDialogContext),
+                                    child: Text('Ok'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                          return;
+                        }
+                        if (Navigator.of(context).canPop()) {
+                          context.pop();
+                        }
+                        context.pushNamed(
+                          'useFoodTransactionCheck',
+                          queryParameters: {
+                            'useTime': serializeParam(
+                              dateTimeFormat("y/M/d", _model.datePicked),
+                              ParamType.String,
+                            ),
+                            'fAddress': serializeParam(
+                              _model.dropDownValue,
+                              ParamType.String,
+                            ),
+                            'foodPercentage': serializeParam(
+                              double.tryParse(_model.textController1.text),
+                              ParamType.double,
+                            ),
+                            'notes': serializeParam(
+                              _model.descriptionTextController.text,
+                              ParamType.String,
+                            ),
+                            'buyerAddress': serializeParam(
+                              _model.foodBuyerAddress,
+                              ParamType.String,
+                            ),
+                            'foodname': serializeParam(
+                              _model.foodName,
+                              ParamType.String,
+                            ),
+                            'usemoney': serializeParam(
+                              functions.shareprice(_model.foodCost,
+                                  double.parse(_model.textController1.text)),
+                              ParamType.double,
+                            ),
+                          }.withoutNulls,
+                        );
                       },
                       text: '下一步',
                       options: FFButtonOptions(

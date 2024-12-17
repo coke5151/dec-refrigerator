@@ -21,9 +21,6 @@ class FFAppState extends ChangeNotifier {
   Future initializePersistedState() async {
     prefs = await SharedPreferences.getInstance();
     _safeInit(() {
-      _phrase = prefs.getStringList('ff_phrase') ?? _phrase;
-    });
-    _safeInit(() {
       _baseURL = prefs.getString('ff_baseURL') ?? _baseURL;
     });
     _safeInit(() {
@@ -35,6 +32,12 @@ class FFAppState extends ChangeNotifier {
     _safeInit(() {
       _myName = prefs.getString('ff_myName') ?? _myName;
     });
+    _safeInit(() {
+      _password = prefs.getStringList('ff_password') ?? _password;
+    });
+    _safeInit(() {
+      _privatekey = prefs.getString('ff_privatekey') ?? _privatekey;
+    });
   }
 
   void update(VoidCallback callback) {
@@ -44,56 +47,21 @@ class FFAppState extends ChangeNotifier {
 
   late SharedPreferences prefs;
 
-  List<String> _phrase = [];
-  List<String> get phrase => _phrase;
-  set phrase(List<String> value) {
-    _phrase = value;
-    prefs.setStringList('ff_phrase', value);
-  }
-
-  void addToPhrase(String value) {
-    phrase.add(value);
-    prefs.setStringList('ff_phrase', _phrase);
-  }
-
-  void removeFromPhrase(String value) {
-    phrase.remove(value);
-    prefs.setStringList('ff_phrase', _phrase);
-  }
-
-  void removeAtIndexFromPhrase(int index) {
-    phrase.removeAt(index);
-    prefs.setStringList('ff_phrase', _phrase);
-  }
-
-  void updatePhraseAtIndex(
-    int index,
-    String Function(String) updateFn,
-  ) {
-    phrase[index] = updateFn(_phrase[index]);
-    prefs.setStringList('ff_phrase', _phrase);
-  }
-
-  void insertAtIndexInPhrase(int index, String value) {
-    phrase.insert(index, value);
-    prefs.setStringList('ff_phrase', _phrase);
-  }
-
-  String _baseURL = 'http://decentralized7.ddns.net:64214/';
+  String _baseURL = '';
   String get baseURL => _baseURL;
   set baseURL(String value) {
     _baseURL = value;
     prefs.setString('ff_baseURL', value);
   }
 
-  String _groupid = '123';
+  String _groupid = '';
   String get groupid => _groupid;
   set groupid(String value) {
     _groupid = value;
     prefs.setString('ff_groupid', value);
   }
 
-  String _myaddress = '0x123';
+  String _myaddress = '';
   String get myaddress => _myaddress;
   set myaddress(String value) {
     _myaddress = value;
@@ -105,6 +73,48 @@ class FFAppState extends ChangeNotifier {
   set myName(String value) {
     _myName = value;
     prefs.setString('ff_myName', value);
+  }
+
+  List<String> _password = [];
+  List<String> get password => _password;
+  set password(List<String> value) {
+    _password = value;
+    prefs.setStringList('ff_password', value);
+  }
+
+  void addToPassword(String value) {
+    password.add(value);
+    prefs.setStringList('ff_password', _password);
+  }
+
+  void removeFromPassword(String value) {
+    password.remove(value);
+    prefs.setStringList('ff_password', _password);
+  }
+
+  void removeAtIndexFromPassword(int index) {
+    password.removeAt(index);
+    prefs.setStringList('ff_password', _password);
+  }
+
+  void updatePasswordAtIndex(
+    int index,
+    String Function(String) updateFn,
+  ) {
+    password[index] = updateFn(_password[index]);
+    prefs.setStringList('ff_password', _password);
+  }
+
+  void insertAtIndexInPassword(int index, String value) {
+    password.insert(index, value);
+    prefs.setStringList('ff_password', _password);
+  }
+
+  String _privatekey = '';
+  String get privatekey => _privatekey;
+  set privatekey(String value) {
+    _privatekey = value;
+    prefs.setString('ff_privatekey', value);
   }
 }
 

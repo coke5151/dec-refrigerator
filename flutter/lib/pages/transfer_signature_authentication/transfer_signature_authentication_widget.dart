@@ -1,3 +1,4 @@
+import '/backend/api_requests/api_calls.dart';
 import '/flutter_flow/flutter_flow_icon_button.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
@@ -11,7 +12,20 @@ export 'transfer_signature_authentication_model.dart';
 class TransferSignatureAuthenticationWidget extends StatefulWidget {
   /// 生成一個加密錢包的註冊頁面，註冊時需要填入使用者名稱、Group ID；按下註冊鍵後會生成 12
   /// 位助記詞，顯示在螢幕上提示使用者用紙筆抄下並提示請勿透漏給他人
-  const TransferSignatureAuthenticationWidget({super.key});
+  const TransferSignatureAuthenticationWidget({
+    super.key,
+    required this.fromAddress,
+    required this.time,
+    required this.amount,
+    required this.notes,
+    required this.fromName,
+  });
+
+  final String? fromAddress;
+  final String? time;
+  final double? amount;
+  final String? notes;
+  final String? fromName;
 
   @override
   State<TransferSignatureAuthenticationWidget> createState() =>
@@ -39,6 +53,8 @@ class _TransferSignatureAuthenticationWidgetState
 
   @override
   Widget build(BuildContext context) {
+    context.watch<FFAppState>();
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -147,7 +163,10 @@ class _TransferSignatureAuthenticationWidgetState
                                                 ),
                                           ),
                                           Text(
-                                            '人名',
+                                            valueOrDefault<String>(
+                                              widget!.fromName,
+                                              'unknown',
+                                            ),
                                             style: FlutterFlowTheme.of(context)
                                                 .titleMedium
                                                 .override(
@@ -156,7 +175,10 @@ class _TransferSignatureAuthenticationWidgetState
                                                 ),
                                           ),
                                           Text(
-                                            '錢包地址',
+                                            valueOrDefault<String>(
+                                              widget!.fromAddress,
+                                              'unknown',
+                                            ),
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
@@ -203,7 +225,7 @@ class _TransferSignatureAuthenticationWidgetState
                                                 ),
                                           ),
                                           Text(
-                                            '人名',
+                                            FFAppState().myName,
                                             style: FlutterFlowTheme.of(context)
                                                 .titleMedium
                                                 .override(
@@ -212,7 +234,7 @@ class _TransferSignatureAuthenticationWidgetState
                                                 ),
                                           ),
                                           Text(
-                                            '錢包地址',
+                                            FFAppState().myaddress,
                                             style: FlutterFlowTheme.of(context)
                                                 .bodyMedium
                                                 .override(
@@ -258,21 +280,36 @@ class _TransferSignatureAuthenticationWidgetState
                                                   letterSpacing: 0.0,
                                                 ),
                                           ),
-                                          Align(
-                                            alignment:
-                                                AlignmentDirectional(-1.0, 0.0),
-                                            child: Text(
-                                              '\$XXX',
-                                              textAlign: TextAlign.start,
-                                              style:
-                                                  FlutterFlowTheme.of(context)
+                                          Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              Icon(
+                                                Icons.attach_money_rounded,
+                                                color:
+                                                    FlutterFlowTheme.of(context)
+                                                        .primaryText,
+                                                size: 24.0,
+                                              ),
+                                              Align(
+                                                alignment: AlignmentDirectional(
+                                                    -1.0, 0.0),
+                                                child: Text(
+                                                  valueOrDefault<String>(
+                                                    widget!.amount.toString(),
+                                                    '0',
+                                                  ),
+                                                  textAlign: TextAlign.start,
+                                                  style: FlutterFlowTheme.of(
+                                                          context)
                                                       .titleMedium
                                                       .override(
                                                         fontFamily:
                                                             'Inter Tight',
                                                         letterSpacing: 0.0,
                                                       ),
-                                            ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ].divide(SizedBox(height: 16.0)),
                                       ),
@@ -315,8 +352,58 @@ class _TransferSignatureAuthenticationWidgetState
                                   padding: EdgeInsetsDirectional.fromSTEB(
                                       16.0, 12.0, 16.0, 12.0),
                                   child: FFButtonWidget(
-                                    onPressed: () {
-                                      print('Button pressed ...');
+                                    onPressed: () async {
+                                      _model.apiResult703 =
+                                          await AccountTransCall.call(
+                                        baseURL: FFAppState().baseURL,
+                                        transferTime: widget!.time,
+                                        fromAddress: widget!.fromAddress,
+                                        toAddress: FFAppState().myaddress,
+                                        amount: widget!.amount,
+                                        notes: widget!.notes,
+                                        groupId: FFAppState().groupid,
+                                      );
+
+                                      if ((_model.apiResult703?.succeeded ??
+                                          true)) {
+                                        await showDialog(
+                                          context: context,
+                                          builder: (alertDialogContext) {
+                                            return AlertDialog(
+                                              content: Text('成功送出!'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          alertDialogContext),
+                                                  child: Text('Ok'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      } else {
+                                        await showDialog(
+                                          context: context,
+                                          builder: (alertDialogContext) {
+                                            return AlertDialog(
+                                              content: Text('送出失敗'),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          alertDialogContext),
+                                                  child: Text('Ok'),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      }
+
+                                      context.safePop();
+
+                                      safeSetState(() {});
                                     },
                                     text: '新增轉帳紀錄',
                                     options: FFButtonOptions(

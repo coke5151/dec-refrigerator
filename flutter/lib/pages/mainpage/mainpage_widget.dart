@@ -1,8 +1,11 @@
 import '/backend/api_requests/api_calls.dart';
+import '/flutter_flow/flutter_flow_charts.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
 import '/flutter_flow/flutter_flow_widgets.dart';
+import '/flutter_flow/custom_functions.dart' as functions;
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'mainpage_model.dart';
@@ -24,6 +27,13 @@ class _MainpageWidgetState extends State<MainpageWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => MainpageModel());
+
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      if ((FFAppState().password.isNotEmpty) == false) {
+        context.goNamed('loginPage');
+      }
+    });
   }
 
   @override
@@ -36,7 +46,14 @@ class _MainpageWidgetState extends State<MainpageWidget> {
   @override
   Widget build(BuildContext context) {
     context.watch<FFAppState>();
-
+    final chartPieChartColorsList = [
+      Color(0xFF8F46E9),
+      Color(0xFF6F28CB),
+      Color(0xFF6961D4),
+      Color(0xFF2634AA),
+      Color(0xFF1E42E0),
+      Color(0xFF2D75D8)
+    ];
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -70,55 +87,36 @@ class _MainpageWidgetState extends State<MainpageWidget> {
             child: Container(
               width: MediaQuery.sizeOf(context).width * 0.9,
               decoration: BoxDecoration(),
-              child: FutureBuilder<ApiCallResponse>(
-                future: FoodallCall.call(
-                  baseURL: FFAppState().baseURL,
-                  groupid: FFAppState().groupid,
-                ),
-                builder: (context, snapshot) {
-                  // Customize what your widget looks like when it's loading.
-                  if (!snapshot.hasData) {
-                    return Center(
-                      child: SizedBox(
-                        width: 50.0,
-                        height: 50.0,
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            FlutterFlowTheme.of(context).primary,
-                          ),
-                        ),
+              child: SingleChildScrollView(
+                primary: false,
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Container(
+                      width: 100.0,
+                      height: 20.0,
+                      decoration: BoxDecoration(
+                        color: FlutterFlowTheme.of(context).primaryBackground,
                       ),
-                    );
-                  }
-                  final columnFoodallResponse = snapshot.data!;
-
-                  return Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Container(
-                        width: 100.0,
-                        height: 20.0,
+                    ),
+                    Material(
+                      color: Colors.transparent,
+                      elevation: 2.0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      child: Container(
+                        width: MediaQuery.sizeOf(context).width * 1.0,
+                        height: MediaQuery.sizeOf(context).height * 0.36,
                         decoration: BoxDecoration(
-                          color: FlutterFlowTheme.of(context).primaryBackground,
-                        ),
-                      ),
-                      Material(
-                        color: Colors.transparent,
-                        elevation: 2.0,
-                        shape: RoundedRectangleBorder(
+                          color:
+                              FlutterFlowTheme.of(context).secondaryBackground,
                           borderRadius: BorderRadius.circular(16.0),
                         ),
-                        child: Container(
-                          width: MediaQuery.sizeOf(context).width * 1.0,
-                          height: MediaQuery.sizeOf(context).height * 0.32,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context)
-                                .secondaryBackground,
-                            borderRadius: BorderRadius.circular(16.0),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                20.0, 20.0, 20.0, 20.0),
+                        child: Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              20.0, 20.0, 20.0, 20.0),
+                          child: SingleChildScrollView(
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -134,33 +132,135 @@ class _MainpageWidgetState extends State<MainpageWidget> {
                                         fontWeight: FontWeight.w600,
                                       ),
                                 ),
+                                FutureBuilder<ApiCallResponse>(
+                                  future: FoodpieCall.call(
+                                    baseURL: FFAppState().baseURL,
+                                    groupId: FFAppState().groupid,
+                                  ),
+                                  builder: (context, snapshot) {
+                                    // Customize what your widget looks like when it's loading.
+                                    if (!snapshot.hasData) {
+                                      return Center(
+                                        child: SizedBox(
+                                          width: 50.0,
+                                          height: 50.0,
+                                          child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                              FlutterFlowTheme.of(context)
+                                                  .primary,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                    final chartFoodpieResponse = snapshot.data!;
+
+                                    return Container(
+                                      width: double.infinity,
+                                      height:
+                                          MediaQuery.sizeOf(context).height *
+                                              0.23,
+                                      child: Stack(
+                                        children: [
+                                          FlutterFlowPieChart(
+                                            data: FFPieChartData(
+                                              values: functions.extractValue(
+                                                  chartFoodpieResponse
+                                                      .jsonBody)!,
+                                              colors: chartPieChartColorsList,
+                                              radius: [60.0],
+                                              borderWidth: [1.0],
+                                              borderColor: [Colors.black],
+                                            ),
+                                            donutHoleRadius: 4.0,
+                                            donutHoleColor: Colors.transparent,
+                                            sectionLabelType:
+                                                PieChartSectionLabelType
+                                                    .percent,
+                                            sectionLabelStyle:
+                                                FlutterFlowTheme.of(context)
+                                                    .headlineSmall
+                                                    .override(
+                                                      fontFamily: 'Inter Tight',
+                                                      fontSize: 12.0,
+                                                      letterSpacing: 0.0,
+                                                    ),
+                                          ),
+                                          Align(
+                                            alignment: AlignmentDirectional(
+                                                -1.0, -1.0),
+                                            child: FlutterFlowChartLegendWidget(
+                                              entries: functions
+                                                  .extractlabel(
+                                                      chartFoodpieResponse
+                                                          .jsonBody)!
+                                                  .asMap()
+                                                  .entries
+                                                  .map(
+                                                    (label) => LegendEntry(
+                                                      chartPieChartColorsList[label
+                                                              .key %
+                                                          chartPieChartColorsList
+                                                              .length],
+                                                      label.value,
+                                                    ),
+                                                  )
+                                                  .toList(),
+                                              width: 300.0,
+                                              height: 200.0,
+                                              textStyle:
+                                                  FlutterFlowTheme.of(context)
+                                                      .bodyMedium
+                                                      .override(
+                                                        fontFamily: 'Inter',
+                                                        letterSpacing: 0.0,
+                                                      ),
+                                              textPadding: EdgeInsetsDirectional
+                                                  .fromSTEB(5.0, 0.0, 0.0, 0.0),
+                                              padding: EdgeInsetsDirectional
+                                                  .fromSTEB(5.0, 0.0, 5.0, 0.0),
+                                              borderWidth: 1.0,
+                                              borderRadius:
+                                                  BorderRadius.circular(4.0),
+                                              indicatorSize: 10.0,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
                               ].divide(SizedBox(height: 16.0)),
                             ),
                           ),
                         ),
                       ),
-                      Container(
-                        width: 100.0,
-                        height: 20.0,
-                        decoration: BoxDecoration(),
+                    ),
+                    Container(
+                      width: 100.0,
+                      height: 20.0,
+                      decoration: BoxDecoration(),
+                    ),
+                    Material(
+                      color: Colors.transparent,
+                      elevation: 2.0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16.0),
                       ),
-                      Material(
-                        color: Colors.transparent,
-                        elevation: 2.0,
-                        shape: RoundedRectangleBorder(
+                      child: Container(
+                        width: MediaQuery.sizeOf(context).width * 1.0,
+                        height: MediaQuery.sizeOf(context).height * 0.351,
+                        decoration: BoxDecoration(
+                          color:
+                              FlutterFlowTheme.of(context).secondaryBackground,
                           borderRadius: BorderRadius.circular(16.0),
                         ),
-                        child: Container(
-                          width: MediaQuery.sizeOf(context).width * 1.0,
-                          height: MediaQuery.sizeOf(context).height * 0.351,
-                          decoration: BoxDecoration(
-                            color: FlutterFlowTheme.of(context)
-                                .secondaryBackground,
-                            borderRadius: BorderRadius.circular(16.0),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(
-                                20.0, 20.0, 20.0, 20.0),
+                        child: Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(
+                              20.0, 20.0, 20.0, 20.0),
+                          child: SingleChildScrollView(
+                            primary: false,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -231,25 +331,24 @@ class _MainpageWidgetState extends State<MainpageWidget> {
 
                                                 return Builder(
                                                   builder: (context) {
-                                                    final names = getJsonField(
-                                                      listViewFoodallResponse
-                                                          .jsonBody,
-                                                      r'''$["food"]''',
-                                                    ).toList();
+                                                    final food =
+                                                        listViewFoodallResponse
+                                                            .jsonBody
+                                                            .toList();
 
                                                     return ListView.separated(
                                                       padding: EdgeInsets.zero,
                                                       shrinkWrap: true,
                                                       scrollDirection:
                                                           Axis.vertical,
-                                                      itemCount: names.length,
+                                                      itemCount: food.length,
                                                       separatorBuilder:
                                                           (_, __) => SizedBox(
                                                               height: 16.0),
-                                                      itemBuilder: (context,
-                                                          namesIndex) {
-                                                        final namesItem =
-                                                            names[namesIndex];
+                                                      itemBuilder:
+                                                          (context, foodIndex) {
+                                                        final foodItem =
+                                                            food[foodIndex];
                                                         return Row(
                                                           mainAxisSize:
                                                               MainAxisSize.max,
@@ -270,38 +369,28 @@ class _MainpageWidgetState extends State<MainpageWidget> {
                                                                       MainAxisSize
                                                                           .max,
                                                                   children: [
-                                                                    Text(
-                                                                      getJsonField(
-                                                                        namesItem,
-                                                                        r'''$["name"]''',
-                                                                      ).toString(),
-                                                                      style: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyLarge
-                                                                          .override(
-                                                                            fontFamily:
-                                                                                'Inter',
-                                                                            letterSpacing:
-                                                                                0.0,
-                                                                          ),
+                                                                    Padding(
+                                                                      padding: EdgeInsetsDirectional.fromSTEB(
+                                                                          0.0,
+                                                                          0.0,
+                                                                          10.0,
+                                                                          0.0),
+                                                                      child:
+                                                                          Text(
+                                                                        getJsonField(
+                                                                          foodItem,
+                                                                          r'''$.name''',
+                                                                        ).toString(),
+                                                                        style: FlutterFlowTheme.of(context)
+                                                                            .bodyLarge
+                                                                            .override(
+                                                                              fontFamily: 'Inter',
+                                                                              letterSpacing: 0.0,
+                                                                            ),
+                                                                      ),
                                                                     ),
                                                                     Text(
-                                                                      ' (',
-                                                                      style: FlutterFlowTheme.of(
-                                                                              context)
-                                                                          .bodyMedium
-                                                                          .override(
-                                                                            fontFamily:
-                                                                                'Inter',
-                                                                            letterSpacing:
-                                                                                0.0,
-                                                                          ),
-                                                                    ),
-                                                                    Text(
-                                                                      getJsonField(
-                                                                        namesItem,
-                                                                        r'''$["simpler_food_address"]''',
-                                                                      ).toString(),
+                                                                      ' \$',
                                                                       style: FlutterFlowTheme.of(
                                                                               context)
                                                                           .bodyMedium
@@ -313,7 +402,10 @@ class _MainpageWidgetState extends State<MainpageWidget> {
                                                                           ),
                                                                     ),
                                                                     Text(
-                                                                      '...)',
+                                                                      getJsonField(
+                                                                        foodItem,
+                                                                        r'''$.money_cost''',
+                                                                      ).toString(),
                                                                       style: FlutterFlowTheme.of(
                                                                               context)
                                                                           .bodyMedium
@@ -333,7 +425,7 @@ class _MainpageWidgetState extends State<MainpageWidget> {
                                                                   children: [
                                                                     Text(
                                                                       getJsonField(
-                                                                        namesItem,
+                                                                        foodItem,
                                                                         r'''$["insert_time"]''',
                                                                       ).toString(),
                                                                       style: FlutterFlowTheme.of(
@@ -362,7 +454,7 @@ class _MainpageWidgetState extends State<MainpageWidget> {
                                                                     ),
                                                                     Text(
                                                                       getJsonField(
-                                                                        namesItem,
+                                                                        foodItem,
                                                                         r'''$["due_date"]''',
                                                                       ).toString(),
                                                                       style: FlutterFlowTheme.of(
@@ -386,7 +478,7 @@ class _MainpageWidgetState extends State<MainpageWidget> {
                                                               children: [
                                                                 Text(
                                                                   getJsonField(
-                                                                    namesItem,
+                                                                    foodItem,
                                                                     r'''$["quantity_left_percentage"]''',
                                                                   ).toString(),
                                                                   style: FlutterFlowTheme.of(
@@ -432,14 +524,18 @@ class _MainpageWidgetState extends State<MainpageWidget> {
                           ),
                         ),
                       ),
-                      Container(
-                        width: 100.0,
-                        height: 20.0,
-                        decoration: BoxDecoration(
-                          color: FlutterFlowTheme.of(context).primaryBackground,
-                        ),
+                    ),
+                    Container(
+                      width: 100.0,
+                      height: 20.0,
+                      decoration: BoxDecoration(
+                        color: FlutterFlowTheme.of(context).primaryBackground,
                       ),
-                      Row(
+                    ),
+                    Padding(
+                      padding:
+                          EdgeInsetsDirectional.fromSTEB(0.0, 0.0, 0.0, 20.0),
+                      child: Row(
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -449,7 +545,7 @@ class _MainpageWidgetState extends State<MainpageWidget> {
                             },
                             text: '新增食材',
                             options: FFButtonOptions(
-                              width: 140.0,
+                              width: MediaQuery.sizeOf(context).width * 0.35,
                               height: 40.0,
                               padding: EdgeInsetsDirectional.fromSTEB(
                                   0.0, 0.0, 0.0, 0.0),
@@ -473,7 +569,7 @@ class _MainpageWidgetState extends State<MainpageWidget> {
                             },
                             text: '使用食材',
                             options: FFButtonOptions(
-                              width: 140.0,
+                              width: MediaQuery.sizeOf(context).width * 0.35,
                               height: 40.0,
                               padding: EdgeInsetsDirectional.fromSTEB(
                                   0.0, 0.0, 0.0, 0.0),
@@ -493,9 +589,9 @@ class _MainpageWidgetState extends State<MainpageWidget> {
                           ),
                         ],
                       ),
-                    ],
-                  );
-                },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

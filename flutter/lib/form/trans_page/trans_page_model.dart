@@ -8,6 +8,7 @@ import '/flutter_flow/form_field_controller.dart';
 import 'trans_page_widget.dart' show TransPageWidget;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -27,8 +28,8 @@ class TransPageModel extends FlutterFlowModel<TransPageWidget> {
   FocusNode? descriptionFocusNode;
   TextEditingController? descriptionTextController;
   String? Function(BuildContext, String?)? descriptionTextControllerValidator;
-  // Stores action output result for [Backend Call - API (accountTrans)] action in Button widget.
-  ApiCallResponse? apiResults1t;
+  // Stores action output result for [Backend Call - API (accountSingle)] action in Button widget.
+  ApiCallResponse? fromName;
 
   @override
   void initState(BuildContext context) {}
